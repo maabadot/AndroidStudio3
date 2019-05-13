@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView
+        android:id="@+id/col1"
+        android:text=""
+        android:textSize="12dp"/>
+    <TextView
+        android:id="@+id/col2"
+        android:text=""
+        android:textSize="12dp"/>
+    <TextView
+        android:id="@+id/col3"
+        android:text=""
+        android:textSize="12dp"/>
+</TableRow>
