@@ -10,9 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     EditText etFIO;
     int elCount = 0;
     DBHelper dbHelper;
+    ArrayList names = new ArrayList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -64,12 +67,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         database.delete(DBHelper.TABLE_STUDENTS, null, null);
 
+
+
         for (int i = 0; i < 5; i++)
         {
             int n1 = (int)Math.floor(Math.random() * rndNames.length);
             int n2 = (int)Math.floor(Math.random() * rndSurnames.length);
             int n3 = (int)Math.floor(Math.random() * rndSecondnames.length);
             String rndFIO = rndSurnames[n2] + " " + rndNames[n1] + " " + rndSecondnames[n3];
+            names.add(rndFIO);
             contentValues.put(DBHelper.KEY_FIO, rndFIO);
             contentValues.put(DBHelper.KEY_TIME, finalDateAndTime);
             database.insert(DBHelper.TABLE_STUDENTS, null, contentValues);
@@ -97,11 +103,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId())
         {
             case R.id.btnAdd:
-                contentValues.put(DBHelper.KEY_FIO, fio);
-                contentValues.put(DBHelper.KEY_TIME, finalDateAndTime);
-
-                database.insert(DBHelper.TABLE_STUDENTS, null, contentValues);
-                elCount++;
+                if (fio.equals(""))
+                {
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Вы не заполнили поле 'ФИО'.", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                else if (names.contains(fio))
+                {
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Такой человек уже есть в базе.", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                else
+                {
+                    contentValues.put(DBHelper.KEY_FIO, fio);
+                    contentValues.put(DBHelper.KEY_TIME, finalDateAndTime);
+                    names.add(fio);
+                    database.insert(DBHelper.TABLE_STUDENTS, null, contentValues);
+                    elCount++;
+                }
                 break;
 
             case R.id.btnRead:
@@ -110,13 +131,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.btnChange:
-                contentValues.put(DBHelper.KEY_FIO, "Иванов Иван Иванович");
-                String where = KEY_ID + "=" + elCount;
-                database.update(DBHelper.TABLE_STUDENTS, contentValues, where, null);
+                if (names.contains("Иванов Иван Иванович"))
+                {
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Такой человек уже есть в базе.", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                else
+                {
+                    contentValues.put(DBHelper.KEY_FIO, "Иванов Иван Иванович");
+                    String where = KEY_ID + "=" + elCount;
+                    names.set(elCount - 1, "Иванов Иван Иванович");
+                    database.update(DBHelper.TABLE_STUDENTS, contentValues, where, null);
+                }
                 break;
 
             case R.id.btnClear:
                 database.delete(DBHelper.TABLE_STUDENTS, null, null);
+                names.clear();
+                elCount = 0;
                 break;
         }
         dbHelper.close();
